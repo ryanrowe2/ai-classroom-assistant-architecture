@@ -1,0 +1,8 @@
+# Canonical LF source bytes on every platform; keeps the Git worktree portable.
+* text=auto eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.json text eol=lf
+*.svg text eol=lf
+*.dot text eol=lf
+*.yml text eol=lf
