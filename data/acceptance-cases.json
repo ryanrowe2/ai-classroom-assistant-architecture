@@ -1,0 +1,778 @@
+{
+  "schema_version": 1,
+  "scope": "Prospective synthetic acceptance tests only; no historical execution or implementation validation is claimed.",
+  "fixtures": {
+    "Calculus A": "Willow-7 = violet compass (synthetic classroom-specific fact)",
+    "Physics B": "Willow-7 = copper lantern (synthetic deliberately contradictory fact)"
+  },
+  "scenarios": [
+    {
+      "id": "S01",
+      "title": "Professor login and ordinary class creation",
+      "requirements": [
+        "R02",
+        "R18",
+        "R06",
+        "R07"
+      ],
+      "given": "A fresh isolated environment contains Professor Alpha and no class named Calculus A; professor authentication is valid.",
+      "when": "Alpha signs in, creates Calculus A, saves an outline with two units and uploads a readable course handout.",
+      "then": "One classroom is created and owned by Alpha; the outline and handout are readable from Alpha’s own classroom dashboard.",
+      "must_not": "No duplicate class, foreign-owner privilege or publication of private files occurs.",
+      "evidence": "Authorized login record, class owner before/after, outline retrieval, scoped file metadata and bytes.",
+      "assertions": [
+        {
+          "id": "A-S01-01",
+          "requirements": [
+            "R02"
+          ],
+          "kind": "positive",
+          "oracle": "Professor Alpha is authenticated and can access only their authorized professor workspace.",
+          "evidence": "Session principal and role observed server side."
+        },
+        {
+          "id": "A-S01-02",
+          "requirements": [
+            "R18"
+          ],
+          "kind": "positive",
+          "oracle": "One new classroom is created with Alpha as the sole owner.",
+          "evidence": "Before/after class records and owner ID."
+        },
+        {
+          "id": "A-S01-03",
+          "requirements": [
+            "R06"
+          ],
+          "kind": "positive",
+          "oracle": "Readable handout is stored against Calculus A and accessible to Alpha.",
+          "evidence": "Stored class association plus successful authorized read."
+        },
+        {
+          "id": "A-S01-04",
+          "requirements": [
+            "R07"
+          ],
+          "kind": "positive",
+          "oracle": "Two-unit outline is saved and round-trips without change.",
+          "evidence": "Persisted outline and retrieval comparison."
+        }
+      ]
+    },
+    {
+      "id": "S02",
+      "title": "Two-class class-code issuance and uniqueness",
+      "requirements": [
+        "R03"
+      ],
+      "given": "Two different classes, Calculus A (owned by Alpha) and Physics B (owned by Beta), already exist; neither class has a join code.",
+      "when": "Each owner independently requests code generation for their initially uncoded class. Separately, in a proposed instrumented test environment, force a code-candidate collision and issue many codes concurrently across independent classes; inspect the backing uniqueness constraint or equivalent atomic issuance rule and the state after restart.",
+      "then": "Two normal issued codes are nonempty, distinct and class-specific. In the proposed collision/concurrency test, every committed code maps to exactly one class, no duplicate survives concurrent requests or restart, and conflicting transactions retry or fail safely. Without a controllable harness and backing-state inspection, robustness is BLOCKED—not PASS.",
+      "must_not": "A code alone may not read class files, rosters or authorize professor mutations.",
+      "evidence": "Normal two-code issuance log and class mapping; for proposed robustness testing, schema/atomicity evidence, overlapping issuance traces, deliberately forced collision, committed code set, post-restart lookup, duplicate count and any BLOCKED reason.",
+      "assertions": [
+        {
+          "id": "A-S02-01",
+          "requirements": [
+            "R03"
+          ],
+          "kind": "positive",
+          "oracle": "Issuing a code separately for both classes yields two distinct usable codes with correct class mapping.",
+          "evidence": "Two issuance outputs, distinctness and lookup assertions."
+        },
+        {
+          "id": "A-S02-02",
+          "requirements": [
+            "R03"
+          ],
+          "kind": "negative",
+          "oracle": "Knowledge of either code alone does not permit resource or roster access.",
+          "evidence": "Denied server-side resource requests with no leaked payload."
+        },
+        {
+          "id": "A-S02-04",
+          "requirements": [
+            "R03"
+          ],
+          "kind": "failure",
+          "oracle": "Proposed collision-injection case does not persist a duplicate code across classes.",
+          "evidence": "Unique-index/conflict result or retry event if controllable; otherwise BLOCKED, not silently PASS."
+        },
+        {
+          "id": "A-S02-05",
+          "requirements": [
+            "R03"
+          ],
+          "kind": "failure",
+          "oracle": "Proposed concurrent issuance and forced-collision cases must show an atomic/persistent uniqueness invariant: each committed code maps to one class, no duplicate survives retries or restart; otherwise FAIL, or BLOCKED without an instrumented implementation.",
+          "evidence": "Backing uniqueness constraint or equivalent transactional proof, simultaneous issuance trace, collision-injection log, persistent readback after restart and exact duplicate-count assertion; mark BLOCKED if unavailable."
+        }
+      ]
+    },
+    {
+      "id": "S03",
+      "title": "Enrollment, idempotency and invalid-code denial",
+      "requirements": [
+        "R01",
+        "R04",
+        "R05"
+      ],
+      "given": "Student One has valid student credentials but no active session and is not enrolled in either Calculus A or Physics B; a valid join code for Calculus A and a made-up code are available.",
+      "when": "Student One authenticates into an empty student workspace, attempts a private class-material read before joining, looks up the valid join code, joins Calculus A twice, and tries the unknown code. Revocation is not exercised as a core V1 requirement.",
+      "then": "Authentication succeeds before enrollment without exposing private class materials. The valid code identifies Calculus A, exactly one membership is created, repeat join is idempotent, and unknown codes are rejected without disclosure.",
+      "must_not": "No Physics B membership, private roster details or materials are revealed by an invalid code.",
+      "evidence": "Before/after authentication and empty-workspace state, denied pre-enrollment private read, session role, lookup target, membership counts, error classifications and absence of private data disclosure.",
+      "assertions": [
+        {
+          "id": "A-S03-01",
+          "requirements": [
+            "R01"
+          ],
+          "kind": "positive",
+          "oracle": "Student One signs in successfully while belonging to zero classes and sees an empty authorized workspace, with private class material access denied until joining.",
+          "evidence": "Authenticated student session trace, zero-membership state before code use, empty workspace, server-side denial and zero private document bytes from pre-enrollment attempt."
+        },
+        {
+          "id": "A-S03-02",
+          "requirements": [
+            "R04"
+          ],
+          "kind": "positive",
+          "oracle": "Valid code lookup identifies only the intended class join target.",
+          "evidence": "Lookup result class ID with private payload redacted."
+        },
+        {
+          "id": "A-S03-03",
+          "requirements": [
+            "R05"
+          ],
+          "kind": "positive",
+          "oracle": "First and repeated joins leave exactly one membership in Calculus A.",
+          "evidence": "Membership rows counted before and after both requests."
+        },
+        {
+          "id": "A-S03-04",
+          "requirements": [
+            "R04",
+            "R05"
+          ],
+          "kind": "negative",
+          "oracle": "Unknown or invalid class codes do not create memberships or disclose private data; revocation is reserved for a separately proposed lifecycle control.",
+          "evidence": "Denied unknown-code requests, unchanged memberships, and inspected response bodies. Revocation intentionally not required for V1."
+        }
+      ]
+    },
+    {
+      "id": "S04",
+      "title": "Skip-upload is a class-creation branch",
+      "requirements": [
+        "R10",
+        "R18",
+        "R12",
+        "R14",
+        "R15"
+      ],
+      "given": "Alpha has a valid professor session, no classroom named Empty Seminar exists, and no course materials have been uploaded.",
+      "when": "During one creation operation Alpha selects “skip initial uploads”, creates Empty Seminar, issues a code and Student One joins, opens Q&A and asks for an allegedly uploaded handout.",
+      "then": "Exactly one owned classroom exists with zero materials; student session is class-bound; Q&A clearly reports no uploaded handout rather than pretending to quote one.",
+      "must_not": "Skip upload may not create an extra class, require a prior completed classroom creation, or invent source citations.",
+      "evidence": "Single creation event/owner, zero-resource inventory, membership/tutor selected class and explicit no-context response.",
+      "assertions": [
+        {
+          "id": "A-S04-01",
+          "requirements": [
+            "R10"
+          ],
+          "kind": "positive",
+          "oracle": "Skip upload is selected as a parameter or branch of the same new-class creation action.",
+          "evidence": "Creation command and single returned class ID."
+        },
+        {
+          "id": "A-S04-02",
+          "requirements": [
+            "R18"
+          ],
+          "kind": "positive",
+          "oracle": "The empty branch creates one usable class owned by Alpha.",
+          "evidence": "Class count and owner ID. Independent recorded observation."
+        },
+        {
+          "id": "A-S04-03",
+          "requirements": [
+            "R12"
+          ],
+          "kind": "positive",
+          "oracle": "An enrolled student initializes a session bound to Empty Seminar despite zero materials.",
+          "evidence": "Selected class and enrollment association."
+        },
+        {
+          "id": "A-S04-04",
+          "requirements": [
+            "R14",
+            "R15"
+          ],
+          "kind": "failure",
+          "oracle": "Missing context is reported without claiming the nonexistent document was used.",
+          "evidence": "Zero-resource state and visible abstention/error classification."
+        }
+      ]
+    },
+    {
+      "id": "S05",
+      "title": "Student cross-class resource and AI-context isolation",
+      "requirements": [
+        "R05",
+        "R14"
+      ],
+      "given": "Alpha owns Calculus A with student One enrolled; Beta owns Physics B with student Two enrolled. Both classes contain different synthetic handouts.",
+      "when": "One requests Physics B document bytes and separately attempts to supply the Physics B resource ID as Q&A context.",
+      "then": "The service rejects both cross-class requests before any document text is delivered to the model.",
+      "must_not": "One must not receive Physics B files, extracted text or protected metadata; a join code is not a substitute for membership.",
+      "evidence": "Denial decisions, unchanged class-scoped memberships and recorded absence of Physics B content in outbound model context.",
+      "assertions": [
+        {
+          "id": "A-S05-01",
+          "requirements": [
+            "R05"
+          ],
+          "kind": "negative",
+          "oracle": "Enrollment in Calculus A does not grant Physics B resource privileges.",
+          "evidence": "Membership data and denied resource request."
+        },
+        {
+          "id": "A-S05-02",
+          "requirements": [
+            "R14"
+          ],
+          "kind": "negative",
+          "oracle": "Reading a resource from Physics B is denied because Student One belongs to Calculus A only.",
+          "evidence": "Zero unauthorized response bytes."
+        },
+        {
+          "id": "A-S05-03",
+          "requirements": [
+            "R14"
+          ],
+          "kind": "negative",
+          "oracle": "Disallowed context cannot reach AI provider.",
+          "evidence": "Authorization decision and outbound context inspection."
+        }
+      ]
+    },
+    {
+      "id": "S06",
+      "title": "Document-grounded Q&A with counterfactual controls",
+      "requirements": [
+        "R12",
+        "R13",
+        "R14",
+        "R15"
+      ],
+      "given": "Fresh Calculus A has readable allowed `calculus-a.txt`: `For checkpoint Willow-7, the instructor-defined answer is violet compass.` Physics B has readable but inaccessible `physics-b.txt` with the same checkpoint keyed to `copper lantern`. Student One belongs only to Calculus A. The labels are fictional and not derivable from general knowledge.",
+      "when": "Ask “For checkpoint Willow-7, what answer does this class handout prescribe?” in Calculus A Q&A mode. Repeat in an isolated no-context control and a separately authorized Physics B control using another enrolled student. Record selected authorized source and the material actually passed to AI if inspectable.",
+      "then": "Calculus A answer matches `violet compass`, authorized Physics B answer matches `copper lantern`, and no-context case abstains or states no source. Healthy source selection and passing context must be observed; if the context pathway cannot be inspected, retrieval efficacy is INCONCLUSIVE.",
+      "must_not": "Neither class answer may leak the other class’s marker; generic prior knowledge or source-selection logging alone is not proof that the model causally relied on the supplied content.",
+      "evidence": "Two synthetic fixture hashes, membership/context authorization, per-run selected text or evidence channel, output comparison and reviewer score (accuracy=2, supported grounding=2).",
+      "assertions": [
+        {
+          "id": "A-S06-01",
+          "requirements": [
+            "R12"
+          ],
+          "kind": "positive",
+          "oracle": "Q&A session remains bound to selected class during all trials.",
+          "evidence": "Session/class mapping and controlled student identities."
+        },
+        {
+          "id": "A-S06-02",
+          "requirements": [
+            "R13"
+          ],
+          "kind": "positive",
+          "oracle": "Q&A mode can be selected explicitly.",
+          "evidence": "Mode transition trace. Independent recorded observation."
+        },
+        {
+          "id": "A-S06-03",
+          "requirements": [
+            "R14"
+          ],
+          "kind": "positive",
+          "oracle": "Authorized class-specific canary content is delivered as model-visible context in healthy trials.",
+          "evidence": "Context payload hash or equivalent instrumentation; BLOCKED/INCONCLUSIVE if unavailable."
+        },
+        {
+          "id": "A-S06-04",
+          "requirements": [
+            "R15"
+          ],
+          "kind": "positive",
+          "oracle": "Outputs match each class’s distinct marker under authorized context, and no-context control does not assert either marker.",
+          "evidence": "Per-class answer transcript, negative control and reviewer rubric."
+        },
+        {
+          "id": "A-S06-05",
+          "requirements": [
+            "R14",
+            "R15"
+          ],
+          "kind": "negative",
+          "oracle": "Wrong-class marker and source content do not appear in the other class’s response or context.",
+          "evidence": "Cross-class transcript diff and context audit."
+        }
+      ]
+    },
+    {
+      "id": "S07",
+      "title": "Concept explanation and three answerable exercises",
+      "requirements": [
+        "R12",
+        "R13",
+        "R16"
+      ],
+      "given": "Student One is enrolled in a newly created class with zero uploaded files and requests a derivative lesson in concept mode.",
+      "when": "Tutor introduces the linear and power derivative rules, then provides three distinct practice items: d/dx(2x), d/dx(x²), d/dx(3x+1).",
+      "then": "The explanation is coherent and mathematically accurate. Exactly three distinct answerable exercises appear with expected mathematical outcomes 2, 2x and 3; the practice remains formative.",
+      "must_not": "The tutor must not require a document upload for this proposed concept-mode fixture, invent source citations or record official grades.",
+      "evidence": "Initial explanation transcript, three-item inventory, independent mathematical review and gradebook state.",
+      "assertions": [
+        {
+          "id": "A-S07-01",
+          "requirements": [
+            "R12"
+          ],
+          "kind": "positive",
+          "oracle": "An empty but enrolled classroom can initialize concept interaction.",
+          "evidence": "Session/class binding and material count=0."
+        },
+        {
+          "id": "A-S07-02",
+          "requirements": [
+            "R13"
+          ],
+          "kind": "positive",
+          "oracle": "Concept learning path can be selected independently of Q&A.",
+          "evidence": "Selected tutoring mode. Independent recorded observation."
+        },
+        {
+          "id": "A-S07-03",
+          "requirements": [
+            "R16"
+          ],
+          "kind": "positive",
+          "oracle": "Tutor provides an accurate conceptual explanation before asking questions.",
+          "evidence": "Human-scored explanation against derivative rules."
+        },
+        {
+          "id": "A-S07-04",
+          "requirements": [
+            "R16"
+          ],
+          "kind": "positive",
+          "oracle": "Exactly three distinct practice problems are presented with verifiable answers 2, 2x and 3.",
+          "evidence": "Three exercise prompts, answer-key review and item count."
+        }
+      ]
+    },
+    {
+      "id": "S08",
+      "title": "Wrong practice answer preserves retry state",
+      "requirements": [
+        "R17"
+      ],
+      "given": "Student One is in concept mode with the three-problem set from S07 independently initialized; the first item is d/dx(2x).",
+      "when": "One submits `1` for the first problem.",
+      "then": "System explains the correct derivative is 2 and offers retry on the same concept/problem without creating a grade.",
+      "must_not": "Incorrect answer must not be accepted, advance automatically or become an official assessment score.",
+      "evidence": "Original item, submitted answer, feedback, unchanged current-problem state and gradebook absence.",
+      "assertions": [
+        {
+          "id": "A-S08-01",
+          "requirements": [
+            "R17"
+          ],
+          "kind": "positive",
+          "oracle": "Submitted value 1 is correctly identified as an incorrect derivative of 2x, with useful formative feedback.",
+          "evidence": "Reviewed feedback and math oracle."
+        },
+        {
+          "id": "A-S08-02",
+          "requirements": [
+            "R17"
+          ],
+          "kind": "positive",
+          "oracle": "Retry remains available on the same problem and no official grade is created.",
+          "evidence": "Next-step state and gradebook query."
+        }
+      ]
+    },
+    {
+      "id": "S09",
+      "title": "Correct practice answer allows progression",
+      "requirements": [
+        "R17"
+      ],
+      "given": "Independent initialized concept lesson displays d/dx(2x) as active first item.",
+      "when": "Student One submits the correct value `2` as the derivative answer for the active first item.",
+      "then": "Answer is accepted as correct and an observable next-problem/next-concept transition becomes available.",
+      "must_not": "Do not mark the true answer wrong or create official course grades.",
+      "evidence": "Active problem, accepted answer, next-step state and absence of grading side effects.",
+      "assertions": [
+        {
+          "id": "A-S09-01",
+          "requirements": [
+            "R17"
+          ],
+          "kind": "positive",
+          "oracle": "The correct answer 2 is accepted with an available next-step transition.",
+          "evidence": "Math oracle, feedback and transition state."
+        }
+      ]
+    },
+    {
+      "id": "S10",
+      "title": "Exam/quiz information, textbook topics, and homework download",
+      "requirements": [
+        "R08",
+        "R09",
+        "R11"
+      ],
+      "given": "Alpha owns Calculus A; Beta owns Physics B. Neither a class code nor student enrollment is necessary for professor resource administration.",
+      "when": "Alpha stores exam information (`Midterm 1, week 6`) and quiz information (`Quiz 2, limits`), creates and retrieves three topics Limits, Differentiation, Integration, uploads synthetic `homework-01.pdf` identified as homework, and downloads the saved file.",
+      "then": "Exam and quiz entries each round-trip without assuming file-only storage. All three topic records persist. Downloaded homework matches its saved SHA-256; Beta is denied access.",
+      "must_not": "No interactive student quiz/grade workflow is implied; Beta must not download Alpha’s material.",
+      "evidence": "Stored exam and quiz records, three-topic retrieval, homework type and byte hashes, and a denied cross-owner request. Topic ordering controls are deliberately not in V1 acceptance.",
+      "assertions": [
+        {
+          "id": "A-S10-01",
+          "requirements": [
+            "R08"
+          ],
+          "kind": "positive",
+          "oracle": "Exam information and quiz material are both stored and retrieved as class-linked data or resources.",
+          "evidence": "Two records/resource views and class associations."
+        },
+        {
+          "id": "A-S10-02",
+          "requirements": [
+            "R09"
+          ],
+          "kind": "positive",
+          "oracle": "Three textbook topics are stored, retrieved and preserved.",
+          "evidence": "Three-item list with names and IDs."
+        },
+        {
+          "id": "A-S10-03",
+          "requirements": [
+            "R11"
+          ],
+          "kind": "positive",
+          "oracle": "Explicit homework-01.pdf downloads byte-for-byte from the correct class.",
+          "evidence": "Document classification and matching SHA-256."
+        },
+        {
+          "id": "A-S10-04",
+          "requirements": [
+            "R11"
+          ],
+          "kind": "negative",
+          "oracle": "Other class owner cannot read/download the homework.",
+          "evidence": "Denied Beta request and no bytes returned."
+        }
+      ]
+    },
+    {
+      "id": "S11",
+      "title": "Malformed upload creates no resource",
+      "requirements": [
+        "R06"
+      ],
+      "given": "Alpha owns a classroom with N valid resources; a deliberately malformed or unsupported synthetic file is prepared.",
+      "when": "Alpha attempts to upload that file.",
+      "then": "A safe understandable validation or parsing error appears; resource count stays N; no corrupted file becomes visible.",
+      "must_not": "Do not disclose internal paths or partially commit a bad file.",
+      "evidence": "Response/error classification and before/after resource count.",
+      "assertions": [
+        {
+          "id": "A-S11-01",
+          "requirements": [
+            "R06"
+          ],
+          "kind": "failure",
+          "oracle": "Malformed/unsupported upload is denied without partial storage or leakage.",
+          "evidence": "Response plus unchanged persisted resource inventory."
+        }
+      ]
+    },
+    {
+      "id": "S12",
+      "title": "Previously present material becomes unreadable",
+      "requirements": [
+        "R14",
+        "R15"
+      ],
+      "given": "Student One is authorized in Calculus A. A previously valid document becomes unavailable or unreadable after the class was set up; run a specific failure state separately.",
+      "when": "One asks the AI to quote or use that specific now-unavailable handout.",
+      "then": "Tutor reports a distinct document-unavailable/processing-error outcome and does not fabricate quotations.",
+      "must_not": "Do not count this as successful healthy grounding or an authorization denial.",
+      "evidence": "Recorded failure state, context fetch result and user-visible response.",
+      "assertions": [
+        {
+          "id": "A-S12-01",
+          "requirements": [
+            "R14"
+          ],
+          "kind": "failure",
+          "oracle": "Unavailable material is not supplied as legitimate source context.",
+          "evidence": "Context attempt and failure classification."
+        },
+        {
+          "id": "A-S12-02",
+          "requirements": [
+            "R15"
+          ],
+          "kind": "failure",
+          "oracle": "No fabricated claim of having quoted inaccessible content.",
+          "evidence": "Response inspection. Independent recorded observation."
+        }
+      ]
+    },
+    {
+      "id": "S13",
+      "title": "Q&A provider outage is contained",
+      "requirements": [
+        "R15"
+      ],
+      "given": "Valid student session and readable authorized Q&A document; simulate GPT provider timeout/5xx.",
+      "when": "Student submits a Q&A request.",
+      "then": "User receives a distinct recoverable provider-error state; class files, membership and session remain unchanged.",
+      "must_not": "No invented answer, access-policy bypass or provider tokens in the error message.",
+      "evidence": "Injected failure, redacted user response and before/after state.",
+      "assertions": [
+        {
+          "id": "A-S13-01",
+          "requirements": [
+            "R15"
+          ],
+          "kind": "failure",
+          "oracle": "Q&A outage shows safe explicit error and preserves resources and membership.",
+          "evidence": "Fault flag, response and state diff."
+        }
+      ]
+    },
+    {
+      "id": "S14",
+      "title": "Concept-feedback provider outage is contained",
+      "requirements": [
+        "R17"
+      ],
+      "given": "Concept mode has active practice item and a submitted answer not yet evaluated; simulate GPT provider timeout/5xx.",
+      "when": "Student requests concept-answer feedback.",
+      "then": "Feedback reports a recoverable provider-error state and retains the current problem and submitted attempt for retry.",
+      "must_not": "Do not mark the answer wrong/correct without evidence, lose progress or issue an official grade.",
+      "evidence": "Injected fault, error response, preserved student answer/problem and gradebook check.",
+      "assertions": [
+        {
+          "id": "A-S14-01",
+          "requirements": [
+            "R17"
+          ],
+          "kind": "failure",
+          "oracle": "Concept-feedback outage is distinguishable and preserves retry state.",
+          "evidence": "Fault trace and before/after tutor state."
+        }
+      ]
+    },
+    {
+      "id": "S15",
+      "title": "Invalid student/professor sessions and cross-role write denial",
+      "requirements": [
+        "R01",
+        "R02"
+      ],
+      "given": "Separate valid student and professor accounts exist. Prepare missing, expired and malformed sessions for each role, plus a valid student session and a valid professor session. Capture an unchanged class-state snapshot.",
+      "when": "For each invalid student session attempt a private student-dashboard read; for each missing, expired and malformed professor session attempt the private professor dashboard, class creation and a resource write. Attempt professor-only writes with a valid student session, then run the permitted professor operation with valid credentials.",
+      "then": "Each invalid session is rejected server-side before data access or state changes. Student-role professor writes are denied; a valid professor is able to perform authorized class operations.",
+      "must_not": "Invalid professor credentials or stale sessions must not reach the private professor dashboard, create classes or modify any file; valid student credentials must not confer professor privileges.",
+      "evidence": "Per-role authentication and rejection records for each missing/expired/malformed session, private response classification, class counts and file hashes before/after denied operations, authorized professor success trace and explicit zero-disclosure review.",
+      "assertions": [
+        {
+          "id": "A-S15-01",
+          "requirements": [
+            "R01"
+          ],
+          "kind": "negative",
+          "oracle": "Missing, expired and malformed student session requests cannot access private dashboard data.",
+          "evidence": "Three server-side denial records and zero private response bytes."
+        },
+        {
+          "id": "A-S15-02",
+          "requirements": [
+            "R02"
+          ],
+          "kind": "negative",
+          "oracle": "Authenticated student cannot create a class or mutate professor resources.",
+          "evidence": "Both denied mutations and unchanged persisted state."
+        },
+        {
+          "id": "A-S15-03",
+          "requirements": [
+            "R02"
+          ],
+          "kind": "positive",
+          "oracle": "Valid professor enters the authorized workspace and can perform own-class write.",
+          "evidence": "Role-specific login and successful owned write."
+        },
+        {
+          "id": "A-S15-04",
+          "requirements": [
+            "R02"
+          ],
+          "kind": "negative",
+          "oracle": "Missing, expired and malformed professor credentials/sessions are each denied server-side for professor dashboard access, class creation and resource upload; no class/file state changes or private details leak.",
+          "evidence": "Nine isolated denial observations across three professor session conditions and three professor-only operations, with audit response, class-count diff, resource hash diff and no private bytes."
+        }
+      ]
+    },
+    {
+      "id": "S16",
+      "title": "Professor cross-owner access is denied",
+      "requirements": [
+        "R02",
+        "R06",
+        "R07",
+        "R08",
+        "R09",
+        "R11"
+      ],
+      "given": "Alpha and Beta each own different classrooms with own materials and metadata.",
+      "when": "Alpha attempts to edit Beta’s outline, overwrite Beta’s exam/quiz information, modify Beta’s topics, upload into Beta’s class and download Beta’s homework.",
+      "then": "Every foreign-object read/write attempt is denied at server authorization with no mutation or leaked file.",
+      "must_not": "Ownership checks cannot be bypassed by changing a client-provided class ID.",
+      "evidence": "Object-owner associations, explicit denial records, no bytes, unchanged foreign-resource state.",
+      "assertions": [
+        {
+          "id": "A-S16-01",
+          "requirements": [
+            "R02",
+            "R06",
+            "R07",
+            "R08",
+            "R09",
+            "R11"
+          ],
+          "kind": "negative",
+          "oracle": "Foreign-owner operations are rejected across each identified resource type.",
+          "evidence": "Per-operation denied response and before/after state."
+        }
+      ]
+    },
+    {
+      "id": "S17",
+      "title": "Integrated class-to-two-bot smoke journey",
+      "requirements": [
+        "R01",
+        "R02",
+        "R03",
+        "R05",
+        "R12",
+        "R13",
+        "R14",
+        "R15",
+        "R16",
+        "R17",
+        "R18"
+      ],
+      "given": "A fresh environment has Alpha and Student One, no classes and no memberships. No tests are asserted to have run historically.",
+      "when": "Alpha authenticates, creates Calculus A, uploads the distinct Willow-7 handout and issues one code. One logs in and joins. One asks the class-canary question in Q&A, then chooses concept learning and receives an explanation plus three problems, submits wrong then correct first answer.",
+      "then": "Classes, sessions and resources are class-scoped; response matches the permitted canary with observable context; concept explanation and three problems are present; retry and progression work. Detailed corner-case coverage remains in S02–S16.",
+      "must_not": "This integration smoke test may not replace uniqueness, outage, negative-role or class-isolation scenarios; no grade is recorded.",
+      "evidence": "End-to-end event log, fixture hashes, authorized context record, answer review, three-problem inventory, feedback states and gradebook absence.",
+      "assertions": [
+        {
+          "id": "A-S17-00",
+          "requirements": [
+            "R01",
+            "R02"
+          ],
+          "kind": "positive",
+          "oracle": "Student and professor both establish valid authenticated sessions before the workflow starts.",
+          "evidence": "Two separate valid server-side role/session records."
+        },
+        {
+          "id": "A-S17-01",
+          "requirements": [
+            "R18",
+            "R03",
+            "R05"
+          ],
+          "kind": "positive",
+          "oracle": "Class creation, code issuance and one student enrollment work in sequence.",
+          "evidence": "State-transition sequence. Independent recorded observation."
+        },
+        {
+          "id": "A-S17-02",
+          "requirements": [
+            "R12",
+            "R13",
+            "R14",
+            "R15"
+          ],
+          "kind": "positive",
+          "oracle": "Class-specific Q&A returns the Willow-7 canary with source evidence.",
+          "evidence": "Context audit and answer transcript."
+        },
+        {
+          "id": "A-S17-03",
+          "requirements": [
+            "R13",
+            "R16",
+            "R17"
+          ],
+          "kind": "positive",
+          "oracle": "Concept mode explains the topic, yields three exercises, and handles wrong/correct attempts.",
+          "evidence": "Explanation, item count and feedback transition log."
+        }
+      ]
+    },
+    {
+      "id": "S18",
+      "title": "Reopen existing classroom after a new professor session",
+      "requirements": [
+        "R02",
+        "R18",
+        "R06",
+        "R07"
+      ],
+      "given": "A fresh isolated test environment has Professors Alpha and Beta. Alpha owns an existing class Calculus A with a saved outline and an uploaded synthetic handout with recorded content hash. Beta owns no part of that existing class.",
+      "when": "Alpha ends the original login session, authenticates again in a new session, selects and reopens the existing class rather than creating it again, reads the saved outline and handout, and compares resource IDs and hashes. Beta then authenticates separately and attempts to select/reopen the same class and read its resources.",
+      "then": "Alpha reopens the same class ID under the new session, with the same owner and persisted outline and material bytes; the class count and content hashes are unchanged. Beta is denied both class selection and resource reads at the server; its denied requests cause no state changes or disclosure.",
+      "must_not": "The test must not begin with the class already selected in Alpha's new session, accept a duplicate class as successful reopening, reuse a stale authenticated session, or treat UI hiding as proof of Beta authorization denial.",
+      "evidence": "Persisted class and owner identifiers, logout/new-login session records, pre/post resource hashes and resource IDs, class count, denied Beta access log and before/after state evidence. No historical application test is asserted.",
+      "assertions": [
+        {
+          "id": "A-S18-01",
+          "requirements": [
+            "R02",
+            "R18",
+            "R06",
+            "R07"
+          ],
+          "kind": "positive",
+          "oracle": "After a fresh authentication session, Alpha reopens the existing class ID and retrieves the unchanged persisted handout and outline without creating a second class.",
+          "evidence": "Session IDs differ; pre/post class ID and owner match; handout SHA-256 and outline values match; class count unchanged."
+        },
+        {
+          "id": "A-S18-02",
+          "requirements": [
+            "R02",
+            "R18"
+          ],
+          "kind": "negative",
+          "oracle": "Beta is denied access when selecting or reopening the class owned by Alpha, and cannot read its private resources.",
+          "evidence": "Server-side denial logs for class selection and direct resource requests; no response bytes, owner or resource mutations."
+        }
+      ]
+    }
+  ]
+}

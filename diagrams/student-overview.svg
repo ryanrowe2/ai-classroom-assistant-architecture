@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="560" viewBox="0 0 440 560">
+<rect x="0" y="0" width="440" height="560" fill="#f8fafc" rx="20"/>
+<text x="24" y="37" font-size="22" font-weight="700" font-family="DejaVu Sans" fill="#102a43">Student workflow</text>
+<text x="24" y="63" font-size="14" font-family="DejaVu Sans" fill="#536b80">Conceptual overview · detailed diagram linked below</text>
+<g id="node_signin" class="node"><title>signin</title><rect x="55" y="86" width="330" height="59" rx="13" fill="#d8ebfc" stroke="#89a4b8" stroke-width="1.2"/>
+<text x="220" y="111" text-anchor="middle" font-size="18" font-weight="700" font-family="DejaVu Sans" fill="#18364f">Student signs in</text>
+<text x="220" y="135" text-anchor="middle" font-size="14" font-weight="400" font-family="DejaVu Sans" fill="#18364f">Retry on denied session</text>
+</g>
+<g id="node_enroll" class="node"><title>enroll</title><rect x="55" y="186" width="330" height="65" rx="13" fill="#e7f1f8" stroke="#89a4b8" stroke-width="1.2"/>
+<text x="220" y="211" text-anchor="middle" font-size="17" font-weight="700" font-family="DejaVu Sans" fill="#18364f">Find code and join class</text>
+<text x="220" y="235" text-anchor="middle" font-size="14" font-weight="400" font-family="DejaVu Sans" fill="#18364f">Invalid code: correct and retry</text>
+</g>
+<g id="node_mode" class="node"><title>mode</title><rect x="55" y="292" width="330" height="59" rx="13" fill="#e9f5ee" stroke="#89a4b8" stroke-width="1.2"/>
+<text x="220" y="317" text-anchor="middle" font-size="18" font-weight="700" font-family="DejaVu Sans" fill="#18364f">Choose a tutoring mode</text>
+<text x="220" y="341" text-anchor="middle" font-size="14" font-weight="400" font-family="DejaVu Sans" fill="#18364f">For this enrolled class</text>
+</g>
+<g id="node_qa" class="node"><title>qa</title><rect x="15" y="410" width="196" height="102" rx="13" fill="#fff1dc" stroke="#89a4b8" stroke-width="1.2"/>
+<text x="113" y="435" text-anchor="middle" font-size="18" font-weight="700" font-family="DejaVu Sans" fill="#18364f">Q&amp;A</text>
+<text x="113" y="459" text-anchor="middle" font-size="14" font-weight="400" font-family="DejaVu Sans" fill="#18364f">Course-specific</text>
+<text x="113" y="483" text-anchor="middle" font-size="14" font-weight="400" font-family="DejaVu Sans" fill="#18364f">questions</text>
+</g>
+<g id="node_concept" class="node"><title>concept</title><rect x="229" y="410" width="196" height="102" rx="13" fill="#fff1dc" stroke="#89a4b8" stroke-width="1.2"/>
+<text x="327" y="435" text-anchor="middle" font-size="16" font-weight="700" font-family="DejaVu Sans" fill="#18364f">Concept learning</text>
+<text x="327" y="459" text-anchor="middle" font-size="14" font-weight="400" font-family="DejaVu Sans" fill="#18364f">Explain, 3 tasks</text>
+<text x="327" y="483" text-anchor="middle" font-size="14" font-weight="400" font-family="DejaVu Sans" fill="#18364f">feedback / retry</text>
+</g>
+<g class="edge"><title>signin-&gt;enroll</title><path d="M 220 145 V 179" fill="none" stroke="#4e7188" stroke-width="2.4"/>
+<polygon points="214,175 226,175 220,183" fill="#4e7188"/></g>
+<g class="edge"><title>enroll-&gt;mode</title><path d="M 220 251 V 285" fill="none" stroke="#4e7188" stroke-width="2.4"/>
+<polygon points="214,281 226,281 220,289" fill="#4e7188"/></g>
+<g class="edge"><title>mode-&gt;qa</title><path d="M 165 351 V 389 H 112 V 403" fill="none" stroke="#4e7188" stroke-width="2.4"/>
+<polygon points="106,399 118,399 112,407" fill="#4e7188"/></g>
+<g class="edge"><title>mode-&gt;concept</title><path d="M 275 351 V 389 H 327 V 403" fill="none" stroke="#4e7188" stroke-width="2.4"/>
+<polygon points="321,399 333,399 327,407" fill="#4e7188"/></g>
+<text x="220" y="541" text-anchor="middle" font-size="13" font-family="DejaVu Sans" fill="#536b80">The two tutoring modes are alternatives</text>
+</svg>

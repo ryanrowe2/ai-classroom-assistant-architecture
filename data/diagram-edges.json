@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "status": "reviewed_conceptual_topology",
+  "edges_by_diagram": {
+    "ai-interaction.svg": [
+      "student->scope",
+      "scope->mode",
+      "scope->context",
+      "mode->qa",
+      "mode->explain",
+      "qa->response",
+      "context->qa",
+      "context->explain",
+      "explain->attempt",
+      "attempt->eval",
+      "eval->choice",
+      "choice->attempt",
+      "choice->follow",
+      "notice->scope"
+    ],
+    "delivery-roadmap.svg": [],
+    "professor-overview.svg": [
+      "signin->class",
+      "class->contents",
+      "class->code"
+    ],
+    "professor-workflow.svg": [
+      "start->gate",
+      "gate->deny",
+      "gate->choose",
+      "choose->create",
+      "choose->existing",
+      "create->initial",
+      "initial->add",
+      "initial->empty",
+      "add->admin",
+      "empty->admin",
+      "existing->admin",
+      "admin->operations",
+      "operations->outlines",
+      "operations->resources",
+      "operations->downloads",
+      "operations->code",
+      "code->join"
+    ],
+    "student-overview.svg": [
+      "signin->enroll",
+      "enroll->mode",
+      "mode->qa",
+      "mode->concept"
+    ],
+    "student-workflow.svg": [
+      "begin->login",
+      "login->retry",
+      "login->search",
+      "retry->begin",
+      "search->found",
+      "found->reenter",
+      "found->join",
+      "reenter->search",
+      "join->prep",
+      "prep->mode",
+      "mode->qa",
+      "mode->concept",
+      "qa->answer",
+      "concept->submit",
+      "submit->feedback",
+      "feedback->improve",
+      "feedback->next",
+      "improve->submit"
+    ],
+    "system-context.svg": [
+      "Professor->ProfUI",
+      "Student->StudentUI",
+      "ProfUI->Auth",
+      "StudentUI->Auth",
+      "Auth->Class",
+      "Auth->Tutor",
+      "Class->Resources",
+      "Class->Tutor",
+      "Class->Metadata",
+      "Resources->Tutor",
+      "Resources->Objects",
+      "Tutor->StudentUI",
+      "Tutor->Resources",
+      "Tutor->Model",
+      "Model->Tutor"
+    ],
+    "system-overview.svg": [
+      "Professor->Platform",
+      "Student->Platform",
+      "Platform->Resources",
+      "Platform->AI"
+    ]
+  }
+}

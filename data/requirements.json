@@ -1,0 +1,237 @@
+{
+  "schema_version": 2,
+  "description": "Original PRD/timeline V1 capability inventory. Actor/capability/source are source-derived or explicitly identified reconstruction; components, dependencies and acceptance are prospective design, not executed historical tests. Scenario coverage is specified in acceptance-cases.json.",
+  "requirements": [
+    {
+      "id": "R01",
+      "actor": "Student",
+      "capability": "Authenticate into student workspace",
+      "source": "PRD p. 2 §2.2, Student Login; p. 5 student flow / login",
+      "component": "Identity/role gate",
+      "dependencies": [],
+      "acceptance": "A valid student can authenticate and reach their own workspace before any class enrollment; class-specific private data remains inaccessible until membership is granted. Missing, expired or invalid student sessions cannot read private data or mutate professor resources.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R02",
+      "actor": "Professor",
+      "capability": "Authenticate into professor workspace",
+      "source": "PRD p. 2 §2.2, Professor Login; p. 5 professor flow / login",
+      "component": "Identity/role gate",
+      "dependencies": [],
+      "acceptance": "A valid professor enters only their authorized workspace. Missing, expired or invalid professor sessions are server-denied before class creation or resource writes with no state change or disclosure; student-role attempts at professor writes are also server-denied with no state change.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R03",
+      "actor": "Professor",
+      "capability": "Generate class-specific enrollment code",
+      "source": "PRD p. 2 §2.2, Generate Unique Class Code; p. 5 professor flow / class-code issue",
+      "component": "Class/enrollment",
+      "dependencies": [
+        "R18"
+      ],
+      "acceptance": "Two independently created classes each receive a usable code; generated codes are distinct and resolve only to their own classes; a code does not itself authorize resource access.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R04",
+      "actor": "Student",
+      "capability": "Look up and validate a class code",
+      "source": "PRD p. 2 §2.2, Search for Class Code; p. 5 student flow / search",
+      "component": "Class/enrollment",
+      "dependencies": [
+        "R01",
+        "R03"
+      ],
+      "acceptance": "Valid issued code resolves only to the intended class join target; unknown or invalid codes reveal no private classroom metadata or resource content. Code revocation and renewal are proposed future lifecycle controls, not V1 acceptance prerequisites.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R05",
+      "actor": "Student",
+      "capability": "Join classroom using accepted code",
+      "source": "PRD p. 2 §2.2, Join Class; p. 5 student flow / join",
+      "component": "Class/enrollment",
+      "dependencies": [
+        "R04"
+      ],
+      "acceptance": "Eligible student acquires one membership in the intended class; repeat join remains idempotent and does not grant membership elsewhere.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R06",
+      "actor": "Professor",
+      "capability": "Upload class teaching materials",
+      "source": "PRD p. 2 §2.2, Upload Course Materials; p. 5 professor flow / upload",
+      "component": "Course resources",
+      "dependencies": [
+        "R18"
+      ],
+      "acceptance": "Authorized professor stores a readable document in the owned class; invalid uploads and cross-class requests cause neither resource creation nor leakage.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R07",
+      "actor": "Professor",
+      "capability": "Save and retrieve course outline",
+      "source": "PRD p. 2 §2.2, Store Course Outline; p. 5 professor flow / outline",
+      "component": "Course resources",
+      "dependencies": [
+        "R18"
+      ],
+      "acceptance": "Authorized professor can save and retrieve an outline scoped to the correct classroom.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R08",
+      "actor": "Professor",
+      "capability": "Store exam and quiz information/resources",
+      "source": "PRD p. 2 §2.2, Store Exams & Quizzes; p. 5 professor flow / Exam & Quiz Data Stored; p. 3 §2.3 defers on-platform quizzes",
+      "component": "Course resources",
+      "dependencies": [
+        "R18"
+      ],
+      "acceptance": "Professor can save and retrieve exam/quiz information or related material scoped to a classroom; no live student quiz or official grade is inferred.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R09",
+      "actor": "Professor",
+      "capability": "Store textbook topic entries",
+      "source": "PRD p. 2 §2.2, Store Textbook Topics; p. 5 professor flow / topics",
+      "component": "Course resources",
+      "dependencies": [
+        "R18"
+      ],
+      "acceptance": "Authorized professor can save and retrieve multiple class-scoped textbook topic entries without assuming an ordering or reordering control.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R10",
+      "actor": "Professor",
+      "capability": "Choose skip-upload branch during class creation",
+      "source": "PRD p. 2 §2.2, Skip Upload & Create Empty Class; p. 5 professor flow / skip upload",
+      "component": "Class administration",
+      "dependencies": [
+        "R02"
+      ],
+      "acceptance": "Professor creates a usable new class via the no-initial-upload option with zero class resource records; this is an alternate R18 creation path, not a second creation operation.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R11",
+      "actor": "Professor",
+      "capability": "Download existing tests/homework/essays",
+      "source": "PRD p. 2 §2.2, Professor Dashboard / Assignments Download; p. 5 professor flow / download",
+      "component": "Course resources",
+      "dependencies": [
+        "R18"
+      ],
+      "acceptance": "Authorized professor downloads a class-owned synthetic homework/test/essay resource with matching bytes; another class owner is denied. Planned assignment/test generation in Week 4 is recorded as ambiguous and unverified.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R12",
+      "actor": "Student",
+      "capability": "Initialize class-scoped tutoring session",
+      "source": "PRD p. 3 §2.2, AI Chatbot Pre-initialization; p. 5 student flow / preinitialize",
+      "component": "Learning orchestration",
+      "dependencies": [
+        "R05"
+      ],
+      "acceptance": "Authenticated enrolled student starts tutor interaction bound to the intended class even if that class has no uploaded teaching materials.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R13",
+      "actor": "Student",
+      "capability": "Select Q&A or concept learning",
+      "source": "PRD p. 3 §2.2, Choose Q&A or Concept Bot; p. 5 student flow / mode",
+      "component": "Learning orchestration",
+      "dependencies": [
+        "R12"
+      ],
+      "acceptance": "Both AI modes are selectable for the same enrolled classroom without changing membership or permitting cross-class access.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R14",
+      "actor": "Student/Q&A",
+      "capability": "Supply authorized subject data to Q&A",
+      "source": "PRD p. 3 §2.2, Retrieve Subject Data; p. 5 student flow / subject document",
+      "component": "Authorized course-context boundary",
+      "dependencies": [
+        "R13"
+      ],
+      "acceptance": "Healthy Q&A obtains readable authorized class-specific content; empty/missing/denied contexts yield separate, nonleaking outcomes.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R15",
+      "actor": "Student/Q&A",
+      "capability": "Respond to subject-based question",
+      "source": "PRD p. 3 §2.2, Answer Subject-Based Questions; p. 5 student flow / response",
+      "component": "AI response coordination",
+      "dependencies": [
+        "R14"
+      ],
+      "acceptance": "Healthy Q&A conveys class-specific synthetic canary with supporting permitted-source evidence and no-context and swapped-class controls; simulated provider outage fails safely.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R16",
+      "actor": "Student/concept",
+      "capability": "Explain concept and provide three practice problems",
+      "source": "PRD p. 3 §2.2, Explain Concepts & Provide Practice Problems; p. 5 student flow / 3 practice problems",
+      "component": "AI concept coordination",
+      "dependencies": [
+        "R13"
+      ],
+      "acceptance": "Concept mode presents a mathematically sound explanation and a distinct three-problem practice set, reflecting the source diagram; no upload is required for this proposed fixture.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R17",
+      "actor": "Student/concept",
+      "capability": "Evaluate practice and guide retry/progression",
+      "source": "PRD p. 3 §2.2, Evaluate Answers; p. 5 student flow / retry, next concept",
+      "component": "Learning feedback coordination",
+      "dependencies": [
+        "R16"
+      ],
+      "acceptance": "Incorrect answer produces accurate feedback and retry; correct answer enables progression; outage preserves state; no official grade is recorded.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    },
+    {
+      "id": "R18",
+      "actor": "Professor",
+      "capability": "Create, own and reopen classroom",
+      "source": "PRD p. 5 professor flow / New Class and Select Existing Class branches; timeline Week 3 dashboard plan",
+      "component": "Class administration",
+      "dependencies": [
+        "R02"
+      ],
+      "acceptance": "A professor creates a classroom exactly once with correct owner; normal and skip-upload branches are alternative choices within the same creation operation. In a fresh authenticated session, the owner can reopen that existing class and retrieve unchanged saved resources; a different professor cannot select the class or read its private resources.",
+      "status": "historical_planned_V1",
+      "test_status": "prospective_not_executed"
+    }
+  ]
+}
