@@ -92,8 +92,12 @@ class ReleaseContract(unittest.TestCase):
 
     def test_corrupt_git_metadata_rejected(self):
         self.init_git()
-        shutil.rmtree(self.repo/'.git/objects')
-        with self.assertRaises(ValueError):
+        # Damage a mandatory Git metadata file without recursively removing
+        # Git's object database (which may change during traversal).
+        git_head = self.repo/'.git/HEAD'
+        self.assertTrue(git_head.is_file(), 'test fixture was not initialized')
+        git_head.unlink()
+        with self.assertRaisesRegex(ValueError, 'Git rev-parse failed'):
             verify(self.repo,self.manifest_digest,True,None)
 
     def test_dirty_tracked_checkout_rejected(self):

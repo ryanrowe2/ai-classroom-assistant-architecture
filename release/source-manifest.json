@@ -89,7 +89,7 @@
     "tools/check_docs.py": "16fb92722f42975d99d3228086f8c6aecd97959a42dc6af153f5f6da4a5e53dd",
     "tools/render_specs.py": "d8bed842416dfc508dfc6aabfc1323db789ca25ce18ee23a76b1ecdf146216f0",
     "tools/test_check_docs.py": "0a3a527fe488079c076aadf54d156d65878920acf9e3cfe0865243694fd23472",
-    "tools/test_release_contract.py": "a3eb728ef8e389c903dd2c507fc60e295941e0392b4dd45f20187490a2760481",
+    "tools/test_release_contract.py": "def7f9a9f24ef72dc84e5418ffe9702f6175981eb6383b95754480a1458702ce",
     "tools/verify_sources.py": "9f0ae0644c5c8ae8b91f86d8213c0f2ae161f0667bd94667b73453c5e467edc4"
   },
   "release": "V18",
