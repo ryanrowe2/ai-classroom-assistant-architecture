@@ -14,7 +14,7 @@ The source tree has a single `release/source-manifest.json` recording every appr
 
 To verify a separate source tree, invoke an independently obtained copy of `tools/verify_sources.py` with `--root /path/to/checkout --manifest-sha256 <published-manifest-digest>`. Add `--git` for a committed Git checkout and optionally `--tree-oid <published-tree-oid>`. This is a distinct verification mode from bytewise ZIP identity. Every working file must match its approved SHA-256 exactly; `.gitattributes` enforces LF checkouts even if `core.autocrlf=true`. A worktree with manually changed line endings is rejected until restored to the reviewed bytes.
 
-**No public Git commit or remote Git tree has yet been certified.** After explicit GitHub publication approval, verify the new remote commit and published tree and add their values to a new publication record. Do not infer a remote commit ID from this local release.
+**Certified public engineering baseline:** `106217234a84f0c4e4a9a2bcc25f08cbdce6c02e`, independently read from GitHub. Public publication and branch protection are complete. [Hosted documentation CI](https://github.com/ryanrowe2/ai-classroom-assistant-architecture/actions/runs/43324730803) passed for that exact commit. Later documentation changes carry new Git and manifest identities and do not replace the historical V18 archive identity.
 
 ## Rebuild deterministically
 
@@ -32,7 +32,7 @@ The builder requires all approved paths and hashes to match. It writes sorted, *
 
 ## Hosted checks
 
-`.github/workflows/validate.yml` runs documentation QA, mutation tests, and the release-contract tests on a declared `ubuntu-24.04` runner with Python 3.12. It installs Graphviz and reports the actual version. DOT validation checks rendering and directed graph topology, not renderer-specific pixel bytes. Workflow execution in GitHub is **not yet demonstrated**; it can only be observed after publication.
+`.github/workflows/validate.yml` runs documentation QA, mutation tests, and the release-contract tests on a declared `ubuntu-24.04` runner with Python 3.12. It installs Graphviz and reports the actual version. DOT validation checks rendering and directed graph topology, not renderer-specific pixel bytes. [Hosted execution](https://github.com/ryanrowe2/ai-classroom-assistant-architecture/actions/runs/43324730803) completed successfully on certified baseline `106217234a84f0c4e4a9a2bcc25f08cbdce6c02e`. This verifies the documentation and release contract, not the historical application implementation.
 
 ## Scope limitations
 
