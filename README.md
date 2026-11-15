@@ -1,5 +1,11 @@
 # AI Classroom Assistant
 
+**Leadership challenge:** Translate an ambitious AI classroom concept into a buildable first release with clear professor/student workflows and manageable dependencies.
+
+**My contribution:** Product definition, MVP requirements, architecture, sprint planning, and coordination of four engineers. The engineering team implemented the application; this repository documents my architecture and delivery role rather than presenting their source as my own.
+
+**What to inspect first:** [MVP at a glance](#mvp-at-a-glance) and [architecture overview](#architecture-overview) show the decisions and system boundaries.
+
 *System architecture & engineering leadership case study*
 
 > **Portfolio case study — not the original application source code.** I led product definition, system architecture, MVP scoping, engineering coordination, and delivery oversight for an AI-assisted classroom platform at Anvillent. Four engineers on the distributed development team implemented the application. I have confirmed that the team completed a functional MVP; the original implementation, test reports, and deployment evidence are not available for independent verification.
